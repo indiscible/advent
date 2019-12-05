@@ -1,6 +1,5 @@
 let input = 138307..654504
 
-
 proc splat(n: int):array[6,int]=
     var
       x = n
