@@ -15,12 +15,9 @@ proc decode(n: var int): Instr =
 #  echo (n,result)
 
 proc read(mem:seq[int], val: int, imm: bool):int=
-  if (imm):
-    return val
+  if (imm): return val
   return mem[val]
 
-
-  
 proc run(code: string, ID: int=1, debug: bool=false):int =
 #  let delta= [0, 4, 4, 
   var p = strip(code).split(",").map(parseInt)
