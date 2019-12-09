@@ -18,8 +18,11 @@ proc read(mem:seq[int], val: int, imm: bool):int=
   if (imm): return val
   return mem[val]
 
-proc run(code: string, ID: int=1, debug: bool=false):int =
-#  let delta= [0, 4, 4, 
+import algorithm
+  
+proc runSeq*(code: string, input0: openArray[int]= [1], debug: bool=false):int =
+#  let delta= [0, 4, 4,
+  var input:seq[int] = reversed input0
   var p = strip(code).split(",").map(parseInt)
   var pc = 0
   while p[pc]!=99:
@@ -33,10 +36,18 @@ proc run(code: string, ID: int=1, debug: bool=false):int =
     if instr.op in [1, 2, 7, 8]:
         c = p[pc+3]
     case instr.op
-     of 1: p[c] = pa + pb
-     of 2: p[c] = pa * pb
-     of 3: p[a] = ID
-     of 4: result = pa
+     of 1:
+       p[c] = pa + pb
+       if debug: echo fmt" {c} <- {pa} + {pb} = {p[c]}" 
+     of 2:
+       p[c] = pa * pb
+       if debug: echo fmt" {c} <- {pa} * {pb} = {p[c]}" 
+     of 3:
+       p[a] = input.pop
+       if debug: echo fmt"{a} <-  {p[a]}"
+     of 4:
+       result = pa
+       if debug: echo fmt"out= {p[a]}"
      of 5:
        if pa>0: pc = pb - 3
      of 6:
@@ -49,10 +60,13 @@ proc run(code: string, ID: int=1, debug: bool=false):int =
        else: p[c]= 0
      else: raiseAssert(fmt"code {p[pc]} line {pc}: invalid op {instr}")
     pc += [0, 4, 4, 2, 2, 3, 3, 4, 4][int(instr.op)]
-    if debug: echo (pc,p,a, pb, c)
+#    if debug: echo (pc,p,a, pb, c)
+
+
+proc run(code:string, ID:int=1, debug:bool=false):int= runSeq(code, @[ID], debug)
 
 assert(23423 == run("3,0,4,0,99",23423))
-assert(0== run("1002,4,3,4,33"))
+assert(0 == run("1002,4,3,4,33"))
 assert(0 == run("1101,100,-1,4,0"))
 echo "five:", run(readFile("five.txt"))
 assert(run("3,9,8,9,10,9,4,9,99,-1,8",8)==1)
